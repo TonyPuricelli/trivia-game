@@ -27,7 +27,7 @@ var questionArray = [
 var current = 0; //current question
 var correct = 0; // tally of correct answers
 var wrong = 0; // tally of wrong answers
-var timer = 30; // 30 seconds - use for timeout calls
+var timer = 30; // will use for timeout calls
 
 // BORROWED CODE SITTING HERE FOR REFERENCE
 // var countdownTimer = {
@@ -64,6 +64,18 @@ var timer = 30; // 30 seconds - use for timeout calls
 
 // FUNCTIONS
 
+// timer
+function runTheClock() {
+    questionClock = setInterval(function(){
+        if (counter === 0) {
+            clearInterval(questionClock);
+            wrongAnswer();
+        } else if (counter > 0) {
+            counter--;
+        }
+    }, 1000);
+}
+
 // load current quiz question
 function buildQuiz(questions) {
     // load current question
@@ -94,14 +106,22 @@ function buildQuiz(questions) {
 
 };
 
+// load next questions
 function nextQuestion() {
     // empty form fields
     $("#choices").empty();
-    // fill with new options
-    buildQuiz(questionArray);
-    // increase counter for next question
-    current++;
-}
+
+    // works until end of quiz
+    if (current < questionArray.length) {
+        // fill with new options
+        buildQuiz(questionArray);
+        // increase counter for next question
+        current++;
+    // at end of quiz, show results
+    } else {
+        showResults();
+    };
+};
 
 // show results at end of quiz
 function showResults() {
@@ -111,8 +131,25 @@ function showResults() {
     $('#result').append(); // incomplete -- will fill in values later
 };
 
-// next question
+// display correct answer screen
+function rightAnswer() {
+    correct++;
 
+    // display message to user
+    console.log("Correct, " + questionArray[current].choices[answer]);
+    // set time out then display next question
+    setTimeout(nextQuestion, 3000);
+}
+
+//display wrong answer screen
+function wrongAnswer() {
+    wrong++;
+
+    // display message to user
+    console.log("Wrong, the correct answer was" + questionArray[current].choices[answer]);
+    // set timeout then display next question
+    setTimeout(nextQuestion, 3000);
+}
 
 // EVENTS
 
@@ -146,9 +183,10 @@ $('.choice').on("click", function(){
     var idNumber = this.value;
     if (idNumber == questionArray[current].answer) {
         // call function to signal correct
-        
+        rightAnswer();
     } else {
         // call function to signal incorrect
+        wrongAnswer();
     }
 
     // load next question
